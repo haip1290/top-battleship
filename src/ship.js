@@ -1,10 +1,15 @@
 export default class Ship {
   #length;
   #hit;
-  constructor(length) {
+  #coordinate;
+
+  constructor(length, coordinate) {
     this.#validateLength(length);
     this.#length = length;
     this.#hit = length;
+
+    this.#validateCoordinate(coordinate);
+    this.#coordinate = coordinate;
   }
 
   get length() {
@@ -20,7 +25,7 @@ export default class Ship {
     return this.#hit;
   }
 
-  hit() {
+  gotHit() {
     if (this.#hit > 0) {
       this.#hit--;
     }
@@ -28,6 +33,24 @@ export default class Ship {
 
   get isSunked() {
     return this.#hit === 0;
+  }
+
+  get coordinate() {
+    return this.#coordinate;
+  }
+
+  set coordinate([startX, startY, endX, endY]) {
+    this.#validateCoordinate([startX, startY, endX, endY]);
+    this.#coordinate = [startX, startY, endX, endY];
+  }
+
+  #validateCoordinate([startX, startY, endX, endY]) {
+    if (startX === endX && endY - this.#length !== startY) {
+      throw new Error("Invalid input coordinate");
+    }
+    if (startY === endY && endX - this.#length !== startX) {
+      throw new Error("Invalid input coordinate");
+    }
   }
 
   #validateLength(value) {
