@@ -4,5 +4,62 @@
   padding: 0;
 }
 
-:root {
+h1 {
+  text-align: center;
+  margin: 1rem;
+}
+
+.game-UI {
+  display: flex;
+}
+
+.player-UI {
+  flex: 1;
+}
+
+.gameboard {
+  display: flex;
+  flex-direction: row;
+}
+
+h2 {
+  margin: 1rem;
+}
+
+h3 {
+  margin: 1rem;
+}
+
+.board {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(10, 1fr);
+
+  margin: 1rem;
+}
+
+.board-grid {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ship-5 {
+  background-color: red;
+}
+
+.ship-4 {
+  background-color: blue;
+}
+
+.ship-3 {
+  background-color: green;
+}
+
+.ship-2 {
+  background-color: yellow;
 }

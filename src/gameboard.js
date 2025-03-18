@@ -1,27 +1,83 @@
+import { tr } from "date-fns/locale";
 import Ship from "./ship";
 
 export default class Gameboard {
   static size = 10;
   #ships;
-  #receivedHits;
+  #missAttacks;
+  #hitAttacks;
 
   constructor() {
     this.#ships = [];
-    this.#receivedHits = [];
+    this.#missAttacks = [];
+    this.#hitAttacks = [];
   }
 
-  placeShip(length, coordinate) {
-    const ship = new Ship(length, coordinate);
-    this.#ships.push(ship);
+  get ships() {
+    return this.#ships;
   }
 
-  get receivedHit() {
-    return this.#receivedHits;
+  initShips() {
+    const ships = [
+      new Ship(5),
+      new Ship(4),
+      new Ship(3),
+      new Ship(3),
+      new Ship(2),
+    ];
+
+    this.#ships.push(...ships);
+
+    for (let index = 0; index < this.#ships.length; index++) {
+      let ship = this.#ships[index];
+      let length = ship.length;
+      this.placeShip(ship, [1, 1 + length, index * 2, index * 2]);
+    }
   }
 
-  set receivedHit(coordinate) {
+  placeShip(ship, coordinate) {
     this.validateCoordiate(coordinate);
-    this.receivedHit;
+    ship.coordinate = coordinate;
+  }
+
+  receiveAttack(coordinate) {
+    this.validateCoordiate(coordinate);
+
+    let ship = findHitedShip(coordinate);
+    if (ship !== null) {
+      this.#hitAttacks.push(coordinate);
+      ship.gotHit();
+    } else {
+      this.#missAttacks.push(coordinate);
+    }
+  }
+
+  get missAttacks() {
+    return this.#missAttacks;
+  }
+
+  get hitAttacks() {
+    return this.#hitAttacks;
+  }
+
+  findHitShip(coordinate) {
+    let [hitX, hitY] = coordinate;
+    this.#ships.forEach((ship) => {
+      let [startX, endX, startY, endY] = ship.coordinate;
+      if (hitX === startX && startY <= hitY && endY >= hitY) {
+        return ship;
+      }
+      if (hitY === startY && startX <= hitX && endX >= hitX) {
+        return ship;
+      }
+    });
+    return null;
+  }
+
+  areAllSunked() {
+    return this.#ships.every((ship) => {
+      ship.isSunked === true;
+    });
   }
 
   validateCoordiate(coordinate) {

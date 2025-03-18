@@ -3,26 +3,18 @@ export default class Ship {
   #hit;
   #coordinate;
 
-  constructor(length, coordinate) {
+  constructor(length, coordinate = null) {
     this.#validateLength(length);
     this.#length = length;
     this.#hit = length;
-
-    this.#validateCoordinate(coordinate);
-    this.#coordinate = coordinate;
+    if (coordinate !== null) {
+      this.#validateCoordinate(coordinate);
+      this.#coordinate = coordinate;
+    }
   }
 
   get length() {
     return this.#length;
-  }
-
-  set length(value) {
-    this.#validateLength(value);
-    this.#length = value;
-  }
-
-  get hit() {
-    return this.#hit;
   }
 
   gotHit() {
@@ -35,21 +27,26 @@ export default class Ship {
     return this.#hit === 0;
   }
 
+  set coordinate(coordinate) {
+    this.#validateCoordinate(coordinate);
+    this.#coordinate = coordinate;
+  }
+
   get coordinate() {
     return this.#coordinate;
   }
 
-  set coordinate([startX, startY, endX, endY]) {
-    this.#validateCoordinate([startX, startY, endX, endY]);
-    this.#coordinate = [startX, startY, endX, endY];
-  }
-
-  #validateCoordinate([startX, startY, endX, endY]) {
-    if (startX === endX && endY - this.#length !== startY) {
-      throw new Error("Invalid input coordinate");
+  #validateCoordinate(coordinate) {
+    let [startX, endX, startY, endY] = coordinate;
+    if (endX - startX === 1 && endY - startY !== this.#length) {
+      throw new Error(
+        `Invalid ship coordinate, length is ${this.#length}, coordinate is ${startX}, ${startY}, ${endX}, ${endY}`,
+      );
     }
-    if (startY === endY && endX - this.#length !== startX) {
-      throw new Error("Invalid input coordinate");
+    if (endY - startY === 1 && endX - startX !== this.#length) {
+      throw new Error(
+        `Invalid ship coordinate, length is ${this.#length}, coordinate is ${startX}, ${startY}, ${endX}, ${endY}`,
+      );
     }
   }
 
