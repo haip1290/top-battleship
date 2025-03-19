@@ -11,6 +11,7 @@ h1 {
 
 .game-UI {
   display: flex;
+  flex-direction: column;
 }
 
 .player-UI {
@@ -49,7 +50,7 @@ h3 {
 }
 
 .ship-5 {
-  background-color: red;
+  background-color: orange;
 }
 
 .ship-4 {
@@ -62,4 +63,12 @@ h3 {
 
 .ship-2 {
   background-color: yellow;
+}
+
+.hit {
+  color: red;
+}
+
+.miss {
+  color: black;
 }

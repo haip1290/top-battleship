@@ -43,12 +43,15 @@ export default class Gameboard {
   receiveAttack(coordinate) {
     this.validateCoordiate(coordinate);
 
-    let ship = findHitedShip(coordinate);
+    let ship = this.findHitShip(coordinate);
     if (ship !== null) {
       this.#hitAttacks.push(coordinate);
       ship.gotHit();
+
+      return ship;
     } else {
       this.#missAttacks.push(coordinate);
+      return null;
     }
   }
 
@@ -62,16 +65,30 @@ export default class Gameboard {
 
   findHitShip(coordinate) {
     let [hitX, hitY] = coordinate;
-    this.#ships.forEach((ship) => {
-      let [startX, endX, startY, endY] = ship.coordinate;
-      if (hitX === startX && startY <= hitY && endY >= hitY) {
-        return ship;
-      }
-      if (hitY === startY && startX <= hitX && endX >= hitX) {
-        return ship;
-      }
-    });
-    return null;
+    return (
+      this.#ships.find((ship) => {
+        let [startX, endX, startY, endY] = ship.coordinate;
+        return (
+          (startX === endX &&
+            hitX === startX &&
+            startY <= hitY &&
+            hitY < endY) ||
+          (startY === endY && hitY === startY && startX <= hitX && hitX < endX)
+        );
+      }) || null
+    );
+  }
+
+  randomAttack() {
+    let x, y;
+    do {
+      x = Math.floor(Math.random() * Gameboard.size);
+      y = Math.floor(Math.random() * Gameboard.size);
+    } while (
+      this.hitAttacks.some(([hitX, hitY]) => hitX === x && hitY === y) ||
+      this.missAttacks.some(([hitX, hitY]) => hitX === x && hitY === y)
+    );
+    return [x, y];
   }
 
   areAllSunked() {

@@ -1,4 +1,9 @@
-import { gameboard } from "./gameController";
+import {
+  player,
+  computer,
+  currentPlayer,
+  switchPlayer,
+} from "./gameController";
 
 function createUI() {
   const h1 = document.createElement("h1");
@@ -8,23 +13,45 @@ function createUI() {
 
   const gameUI = document.createElement("div");
   gameUI.classList.add("game-UI");
-  gameUI.appendChild(createPlayerUI());
+  const playerUI = createPlayerUI(player);
+  const computerUI = createComputerUI(computer);
+
+  gameUI.appendChild(playerUI);
+  gameUI.appendChild(computerUI);
 
   document.body.appendChild(gameUI);
-  placeShip(gameboard);
+  placeShip(player.gameboard, playerUI);
+  placeShip(computer.gameboard, computerUI);
+
+  addHitBoardListener(computer.gameboard, playerUI, computerUI);
 }
 
-function createPlayerUI() {
+function createPlayerUI(player) {
   const playerUI = document.createElement("div");
   playerUI.classList.add("player-UI");
+  playerUI.dataset.playerType = player.type;
 
   const h2 = document.createElement("h2");
-  h2.textContent = "Player 1";
+  h2.textContent = "Player";
   playerUI.appendChild(h2);
 
   playerUI.appendChild(createGameboard());
 
   return playerUI;
+}
+
+function createComputerUI(computer) {
+  const computerUI = document.createElement("div");
+  computerUI.classList.add("computer-UI");
+  computerUI.dataset.playerType = computer.type;
+
+  const h2 = document.createElement("h2");
+  h2.textContent = "Computer";
+  computerUI.appendChild(h2);
+
+  computerUI.appendChild(createGameboard());
+
+  return computerUI;
 }
 
 function createGameboard() {
@@ -49,22 +76,24 @@ function createShipBoard() {
   return shipBoard;
 }
 
-function placeShip(gameboard) {
-  console.log("Begin placing ship");
+function placeShip(gameboard, UIContainer) {
   const ships = gameboard.ships;
-  const shipBoard = document.querySelector(".ship-board");
+  const shipBoard = UIContainer.querySelector(".ship-board");
 
   ships.forEach((ship) => {
     let [startX, endX, startY, endY] = ship.coordinate;
     for (let index = 0; index < ship.length; index++) {
-      const grid = shipBoard.querySelector(
-        `.grid-${startY * 10 + startX + index}`,
-      );
+      let grid;
+      if (startY === endY) {
+        grid = shipBoard.querySelector(`.grid-${startX + index}-${startY}`);
+      } else {
+        grid = shipBoard.querySelector(`.grid-${startX}-${startY + index}`);
+      }
+
       grid.classList.add(`ship-${ship.length}`);
-      console.log("grid", grid);
+      grid.dataset.ship = true;
     }
   });
-  console.log("Ending placing ship");
 }
 
 function createHitBoard() {
@@ -79,13 +108,86 @@ function createHitBoard() {
   return hitBoard;
 }
 
+function addHitBoardListener(gameboard, hitBoardUI, shipBoardUI) {
+  const hitBoard = hitBoardUI.querySelector(".hit-board");
+  const hitGrids = hitBoard.querySelectorAll(".board-grid");
+
+  const shipBoard = shipBoardUI.querySelector(".ship-board");
+  const shipGrids = shipBoard.querySelectorAll(".board-grid");
+
+  hitGrids.forEach((grid, index) => {
+    grid.addEventListener("click", () => {
+      const x = Number(grid.classList[0].split("-")[1]);
+      const y = Number(grid.classList[0].split("-")[2]);
+      handleAttack(gameboard, [x, y], grid, shipGrids[index]);
+    });
+  });
+}
+
+function handleAttack(gameboard, coordinate, hitGrid, shipGrid) {
+  const ship = gameboard.receiveAttack(coordinate);
+  if (ship) {
+    updateGridUI(hitGrid, true);
+    updateGridUI(shipGrid, true);
+  } else {
+    updateGridUI(hitGrid);
+    updateGridUI(shipGrid);
+  }
+  if (gameboard.areAllSunked()) {
+    gameOver();
+  } else {
+    switchPlayer();
+    if (currentPlayer.type === "computer") {
+      computerTurn();
+    }
+  }
+}
+
+function updateGridUI(grid, hit = false) {
+  if (hit) {
+    grid.textContent = "X";
+    grid.classList.add("hit");
+  } else {
+    grid.textContent = "O";
+    grid.classList.add("miss");
+  }
+}
+
+function computerTurn() {
+  const [x, y] = computer.gameboard.randomAttack();
+  console.log("computer turn", [x.y]);
+
+  const playerUI = document.querySelector(".player-UI");
+  const shipBoard = playerUI.querySelector(".ship-board");
+  const shipGrids = shipBoard.querySelectorAll(".board-grid");
+
+  const computerUI = document.querySelector(".computer-UI");
+  const hitBoard = computerUI.querySelector(".hit-board");
+  const hitGrids = hitBoard.querySelectorAll(".board-grid");
+
+  handleAttack(
+    player.gameboard,
+    [x, y],
+    hitGrids[y * 10 + x],
+    shipGrids[y * 10 + x],
+  );
+}
+
+function gameOver() {
+  const winner = currentPlayer.type === "human" ? "Player" : "Computer";
+  alert(`${winner} wins!`);
+}
+
 function createBoard() {
   const board = document.createElement("div");
   board.classList.add("board");
 
   for (let index = 0; index < 100; index++) {
     const boardGrid = document.createElement("div");
-    boardGrid.classList.add(`grid-${index}`, `board-grid`);
+    boardGrid.classList.add(
+      `grid-${index % 10}-${Math.floor(index / 10)}`,
+      `board-grid`,
+    );
     board.appendChild(boardGrid);
   }
 
