@@ -47,7 +47,6 @@ export default class Gameboard {
     if (ship !== null) {
       this.#hitAttacks.push(coordinate);
       ship.gotHit();
-
       return ship;
     } else {
       this.#missAttacks.push(coordinate);
@@ -92,9 +91,8 @@ export default class Gameboard {
   }
 
   areAllSunked() {
-    return this.#ships.every((ship) => {
-      ship.isSunked === true;
-    });
+    let result = this.#ships.every((ship) => ship.isSunked);
+    return result;
   }
 
   validateCoordiate(coordinate) {

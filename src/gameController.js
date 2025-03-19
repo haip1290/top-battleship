@@ -1,15 +1,23 @@
 import Gameboard from "./gameboard";
 import Player from "./player";
 
-const player = new Player("human");
-player.gameboard.initShips();
-const computer = new Player("computer");
-computer.gameboard.initShips();
+let player;
+let computer;
+let currentPlayer;
 
-let currentPlayer = player;
+init();
+
+function init() {
+  player = new Player("human");
+  player.gameboard.initShips();
+  computer = new Player("computer");
+  computer.gameboard.initShips();
+
+  currentPlayer = player;
+}
 
 function switchPlayer() {
   currentPlayer = currentPlayer.type === "human" ? computer : player;
 }
 
-export { player, computer, currentPlayer, switchPlayer };
+export { player, computer, currentPlayer, init, switchPlayer };

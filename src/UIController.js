@@ -3,16 +3,20 @@ import {
   computer,
   currentPlayer,
   switchPlayer,
+  init,
 } from "./gameController";
 
-function createUI() {
+function createHeading() {
   const h1 = document.createElement("h1");
   h1.textContent = "Battleship";
 
   document.body.appendChild(h1);
+}
 
+function createUI() {
   const gameUI = document.createElement("div");
   gameUI.classList.add("game-UI");
+
   const playerUI = createPlayerUI(player);
   const computerUI = createComputerUI(computer);
 
@@ -155,7 +159,6 @@ function updateGridUI(grid, hit = false) {
 
 function computerTurn() {
   const [x, y] = computer.gameboard.randomAttack();
-  console.log("computer turn", [x.y]);
 
   const playerUI = document.querySelector(".player-UI");
   const shipBoard = playerUI.querySelector(".ship-board");
@@ -174,8 +177,10 @@ function computerTurn() {
 }
 
 function gameOver() {
+  console.log("Game Over");
   const winner = currentPlayer.type === "human" ? "Player" : "Computer";
   alert(`${winner} wins!`);
+  resetGame();
 }
 
 function createBoard() {
@@ -194,4 +199,16 @@ function createBoard() {
   return board;
 }
 
-export { createUI };
+function resetGame() {
+  init();
+  clearGameUI();
+  createHeading;
+  createUI();
+}
+
+function clearGameUI() {
+  const gameUI = document.querySelector(".game-UI");
+  gameUI.innerHTML = "";
+}
+
+export { createUI, createHeading };
